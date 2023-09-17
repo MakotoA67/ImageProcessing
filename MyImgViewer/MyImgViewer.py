@@ -3,20 +3,23 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import mplcursors
+import argparse
 
 class MyPanel(wx.Panel):
-    def __init__(self, parent):
+    def __init__(self, parent, image_file_path):
         super().__init__(parent)
 
         self.image_ctrl = wx.StaticBitmap(self)
         self.image = None
-        self.image_path = None
+        self.image_path = image_file_path
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.image_ctrl, 1, wx.EXPAND)
         self.SetSizer(sizer)
 
         self.Bind(wx.EVT_SIZE, self.on_resize)
+        if image_file_path != "":
+            self.load_image(image_file_path)
 
     def load_image(self, path):
         image = wx.Image(path, wx.BITMAP_TYPE_ANY)
@@ -85,9 +88,9 @@ class MyPanel(wx.Panel):
         plt.show()
 
 class MyFrame(wx.Frame):
-    def __init__(self):
+    def __init__(self, image_file_path):
         super().__init__(None, id=-1, title='MyImgViewer - My Image Viewer')
-        self.panel = MyPanel(self)
+        self.panel = MyPanel(self, image_file_path)
         self.create_menu()
 
         self.Show()
@@ -115,6 +118,14 @@ class MyFrame(wx.Frame):
         self.Close()
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='画像ファイルviewer')
+
+    # image_file位置引数にデフォルト値Noneを設定
+    parser.add_argument('image_file', default="", nargs='?', help='表示する画像ファイル')
+
+    args = parser.parse_args()
+    image_file_path = args.image_file
+
     app = wx.App()
-    frame = MyFrame()
+    frame = MyFrame(image_file_path)
     app.MainLoop()
